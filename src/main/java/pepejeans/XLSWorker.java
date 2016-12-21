@@ -6,8 +6,8 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Iterator;
 import java.util.List;
 
@@ -19,6 +19,8 @@ public class XLSWorker {
     private final static String DEFAULT_FILENAME = "Бланк_заказа_-_men_women.xls"; // Имя файла по умолчанию
     private final static int DEFAULT_SHEET_NUM = 1; // Номер листа по умолчанию
     private final static int DEFAULT_FIRST_ROW_NUM = 6; // Номер первой строки по умолчанию
+    private final static int DEFAULT_ARTICLE_COL = 4/*7*/; // Столбец с артикулом по умолчанию
+    private final static int DEFAULT_PRICE_COL = 29/*28*/; // Столбец с ценой по умолчанию
 
     private static Workbook wb; // Рабочая книга
     private static int sheetNum; // Номер листа
@@ -31,18 +33,22 @@ public class XLSWorker {
       */
 
     public XLSWorker() { // Конструктор по умолчанию
-        new XLSWorker(DEFAULT_FILENAME); // TODO Проверить работоспособность с новым прайсом
+        new XLSWorker(DEFAULT_FILENAME);
     }
 
-    private XLSWorker(String fileName) { // Конструктор с листом и первой строкой по умолчанию, имя файла задаем явно
+    public XLSWorker(String fileName) { // Конструктор с листом и первой строкой по умолчанию, имя файла задаем явно
         new XLSWorker(fileName, DEFAULT_SHEET_NUM, DEFAULT_FIRST_ROW_NUM);
     }
 
-    private XLSWorker(String fileName, int sheetNum, int firstRowNum) { // Все параметры задаем явно
+    public XLSWorker(int sheetNum, int firstRowNum) { // Конструктор с именем файла по умолчанию, лист и первую строку задаем явно
+        new XLSWorker(DEFAULT_FILENAME, sheetNum, firstRowNum);
+    }
+
+    public XLSWorker(String fileName, int sheetNum, int firstRowNum) { // Все параметры задаем явно
         try {
-            InputStream in = getClass().getClassLoader().getResourceAsStream(fileName);
+            FileInputStream fin = new FileInputStream(System.getProperty("user.dir") + "\\" + fileName);
             boolean isXLSX = fileName.substring(fileName.indexOf('.') + 1).equals("xlsx");
-            wb = isXLSX ? new XSSFWorkbook(in) : new HSSFWorkbook(in);
+            wb = isXLSX ? new XSSFWorkbook(fin) : new HSSFWorkbook(fin);
         } catch (IOException e){
             e.printStackTrace();
         }
@@ -50,7 +56,7 @@ public class XLSWorker {
         XLSWorker.firstRowNum = firstRowNum;
     }
 
-    public String parse(List<ThingPepe> dressList){
+    public List<ThingPepe> parse(List<ThingPepe> dressList){
         Iterator<ThingPepe> it = dressList.iterator();
         Sheet sheet = wb.getSheetAt(sheetNum);
         while (it.hasNext()) {
@@ -58,8 +64,8 @@ public class XLSWorker {
             for (int i = firstRowNum; i < sheet.getLastRowNum(); i++) {
                 Row row = sheet.getRow(i);
                 try {
-                    if (row.getCell(7).toString().equals(thing.getArticle())) { // 7й столбец с артикулом
-                        thing.setPrice((float)row.getCell(28).getNumericCellValue()); // 28й столбец с ценой
+                    if (row.getCell(DEFAULT_ARTICLE_COL).toString().equals(thing.getArticle())) {
+                        thing.setPrice((float)row.getCell(DEFAULT_PRICE_COL).getNumericCellValue());
                         break;
                     } else {
                         //System.out.println("Not found");
@@ -71,7 +77,7 @@ public class XLSWorker {
 
         cleanUpDressList(dressList); // Удаление вещей с пустой ценой
 
-        return dressList.toString();
+        return dressList;
     }
 
     private void cleanUpDressList(List<ThingPepe> dressList) {

@@ -8,14 +8,19 @@ package core;
 public abstract class Thing {
     /** Атикул */
     private String article;
+
     /** Конструктор по умолчанию отсутствует */
     protected Thing(String article) {
         this.article = article;
     }
+
     /** Возвращает артикул */
     public String getArticle() {
         return article;
     }
+    /** Обязательное переопределение метода toSP() - приводит массив вещей в формат СП и сохраняет в result.txt */
+    public abstract String toSP();
+
     /** Обязательное переопределение метода toString() */
      @Override
     public abstract String toString();

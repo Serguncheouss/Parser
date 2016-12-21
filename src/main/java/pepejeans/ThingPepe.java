@@ -1,10 +1,7 @@
 package pepejeans;
 
 import core.Thing;
-
-import java.util.Arrays;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 /**
  * Created by Strel on 03.08.2016.
@@ -20,11 +17,11 @@ public class ThingPepe extends Thing {
     /** Ссылка на товар */
     private String url;
     /** Ссылки на картинки */
-    private String[] gallery;
+    private List<String> gallery = new ArrayList<>();
     /** Параметры, берем со страницы с товаром */
     private Map<String, String> params = new TreeMap<>();
-    /** Цвета */
-    private String[] colors;
+    /** Цвета(код, название, ссылка на картинку) */
+    private List<List<String>> colors = new ArrayList<>();
     /** Цена */
     private float price;
 
@@ -34,16 +31,16 @@ public class ThingPepe extends Thing {
         this.url = url;
     }
 
-    void setGallery(String[] gallery) {
-        this.gallery = gallery;
+    void addImageToGallery(String image) {
+        this.gallery.add(image);
     }
 
-    void setParams(String key, String value) {
+    void addParam(String key, String value) {
         this.params.put(key, value);
     }
 
-    void setColors(String[] colors) {
-        this.colors = colors;
+    void addColor(String colorId, String colorName, String colorURL) {
+        this.colors.add(Arrays.asList(colorId, colorName, colorURL));
     }
 
     void setPrice(float price) {
@@ -58,7 +55,7 @@ public class ThingPepe extends Thing {
         return url;
     }
 
-    String[] getGallery() {
+    List<String> getGallery() {
         return gallery;
     }
 
@@ -66,7 +63,7 @@ public class ThingPepe extends Thing {
         return params;
     }
 
-    String[] getColors() {
+    List<List<String>> getColors() {
         return colors;
     }
 
@@ -75,13 +72,29 @@ public class ThingPepe extends Thing {
     }
 
     @Override
+    public String toSP() {
+        String result = "";
+        for (String image : this.getGallery()) {
+            result += "[img]" + image + "[/img]";
+        }
+        result += "\n[b]" + this.getArticle() + " " + this.getName() + " - " + this.getPrice() + "[/b]\n";
+        for (Map.Entry<String, String> param : this.getParams().entrySet()) {
+            result += param.getKey() + " " + param.getValue() + "\n";
+        }
+        for (List<String> color : this.getColors()) {
+            result += color.get(0) + " " + color.get(1) + " [img width=40 height=40]" + color.get(2) + "[/img]\n\n";
+        }
+        return result;
+    }
+
+    @Override
     public String toString() {
         return "Атикул: " + this.getArticle() + "\n" +
-                "Наименование: " + name + "\n" +
-                "Ссылка на товар: " + url + "\n" +
-                "Ссылки на картинки: " + Arrays.toString(gallery) + "\n" +
-                "Размеры: " + params + "\n" +
-                "Цвета: " + Arrays.toString(colors) + "\n" +
-                "Цена: " + price + "\n";
+                "Наименование: " + getName() + "\n" +
+                "Ссылка на товар: " + getUrl() + "\n" +
+                "Ссылки на картинки: " + getGallery() + "\n" +
+                "Параметры: " + getParams() + "\n" +
+                "Цвета: " + getColors() + "\n" +
+                "Цена: " + getPrice() + "\n";
     }
 }

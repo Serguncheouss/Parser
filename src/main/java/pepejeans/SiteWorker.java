@@ -5,7 +5,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import com.gistlabs.mechanize.document.html.HtmlDocument;
-import com.gistlabs.mechanize.document.html.HtmlElement;
 import com.gistlabs.mechanize.document.node.Node;
 import com.gistlabs.mechanize.exceptions.MechanizeException;
 import com.gistlabs.mechanize.impl.MechanizeAgent;
@@ -18,6 +17,8 @@ public class SiteWorker {
     private String login;
     /** Пароль */
     private String password;
+    /** Ссылка на сайт */
+    private String siteUrl = "http://webtool.pepejeans.com";
     /** Ссылка на страницу авторизацию */
     private String accountUrl;
     /** Ссылка на начальную страницу сайта */
@@ -36,11 +37,11 @@ public class SiteWorker {
     private Map.Entry theme;
     private HtmlDocument dressPage;
     private List<ThingPepe> dress = new ArrayList<>();
-    private static final int TEST_END_COUNT = 30; // Количество тестовых итераций
+    private static final int TEST_END_COUNT = 3; // Количество тестовых итераций
     private int testCounter = 0; // Счетчик тестовых итераций
 
     public SiteWorker() {
-        try (InputStream accountDataStream = getClass().getClassLoader().getResourceAsStream(accountDataFile)) { // открываем файл с данными аккаунта
+        try (FileInputStream accountDataStream = new FileInputStream(System.getProperty("user.dir") + "\\" + accountDataFile)) { // открываем файл с данными аккаунта
             int i;
             String buffer = "";
             while ((i = accountDataStream.read()) != -1) { // читаем данные из файла
@@ -207,16 +208,14 @@ public class SiteWorker {
     private void parseDress() {
         int thingCounter = 1;
         ThingPepe tThing;
-        Iterator<? extends Node> it = dressPage.find("div#linebook_list").findAll("li").iterator();
-        test: while (it.hasNext()) {
-            if (testCounter >= TEST_END_COUNT) break test; // test
-            Node li = it.next();
+        for (Node node : dressPage.find("div#linebook_list").findAll("li")) {
+            if (TEST_END_COUNT != 0 && testCounter >= TEST_END_COUNT) break; // test
+            Node li = node;
             if (
                     !li.find("span.images").find("img").getAttribute("src").contains("not_available") & // убираем недоступные товары
                             !li.find("span.images").find("img").getAttribute("src").contains("cancelled") & // убираем отмененные товары
-                            li.find("span.offeronly") ==  null // убираем товары только для предложения
-                    )
-            {
+                            li.find("span.offeronly") == null // убираем товары только для предложения
+                    ) {
                 dress.add(tThing = new ThingPepe( // добавляем новую вещь в массив
                         li.getAttribute("id").substring(li.getAttribute("id").indexOf("_") + 1), // артикул
                         li.find("em").find("span.stylename").getValue(), // имя
@@ -247,48 +246,54 @@ public class SiteWorker {
 //        }));
         System.out.println("Добавлено " + dress.size() + " вещей");
     }
+    /** Парсит параметры для товара */
     private void getParamsForThing (ThingPepe thing) {
         String attrName;
         HtmlDocument page = getPage(startUrl + thing.getUrl());
         // <-- Парсим картинки
         Iterator<? extends Node> it = page.findAll("div.images").iterator();
-        ArrayList<String> gallery = new ArrayList<>();
+        String tUrl;
         while (it.hasNext()) {
             Node image = it.next();
-            gallery.add(image.find("a").getAttribute("href"));
+            tUrl = image.find("a").getAttribute("href");
+            thing.addImageToGallery(siteUrl + tUrl.substring(tUrl.indexOf("imagen=") + 7));
         }
-        thing.setGallery(gallery.toArray(new String[gallery.size()]));
         // --> Парсим картинки
         // <-- Парсим цвета
         it = page.findAll("div.color").iterator();
-        ArrayList<String> colors = new ArrayList<>();
-        while (it.hasNext()) {
-            Node color = it.next().find("div.name");
-            colors.add(color.getValue());
+        if (!it.hasNext()) {
+            String colorId = page.find("div#wash_code").find("div.name").getValue();
+            String colorUrl = siteUrl + page.find("div#wash_code").find("img").getAttribute("src");
+            thing.addColor(colorId, "", colorUrl);
         }
-        thing.setColors(colors.toArray(new String[colors.size()]));
+        while (it.hasNext()) {
+            String colorId = it.next().find("div.name").getValue();
+            String colorName = it.next().find("div.small").getAttribute("title");
+            String colorUrl = siteUrl + it.next().find("img").getAttribute("src");
+            thing.addColor(colorId, colorName, colorUrl);
+        }
         // --> Парсим цвета
         // <-- Парсим параметры
-        thing.setGallery(gallery.toArray(new String[gallery.size()]));
         it = page.find("ul.info").findAll("li").iterator();
         while (it.hasNext()) {
             Node li = it.next();
             if ((attrName = li.find("span").getValue()).equals("Block:")) {
                 break;
             }
-            thing.setParams(attrName, li.find("strong").getValue());
+            thing.addParam(attrName, li.find("strong").getValue());
         }
         // --> Парсим параметры
-    } // Парсит параметры для товара
-    private void getThings() {
+    }
+    /** Выводит массив вещей на экран */
+    public void getThings() {
         dress.forEach(System.out::println);
     }
-    private void findThing(String id) {
+    /** Ищет определенную вещь и выводит на экран */
+    public void findThing(String id) {
         System.out.println(dress.stream().filter(thingPepe -> thingPepe.getArticle().equals(id)).findFirst().orElse(null));
     }
     public List<ThingPepe> parse() {
         parseDress();
-        getThings();
         return dress;
     }
 }
