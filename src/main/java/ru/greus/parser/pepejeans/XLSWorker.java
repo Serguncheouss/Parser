@@ -7,7 +7,9 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.NoSuchFileException;
 import java.util.Iterator;
 import java.util.List;
 
@@ -32,19 +34,19 @@ public class XLSWorker {
      Замерить, что выходит быстрее по производительности
       */
 
-    public XLSWorker() { // Конструктор по умолчанию
+    public XLSWorker() throws FileNotFoundException { // Конструктор по умолчанию
         new XLSWorker(DEFAULT_FILENAME);
     }
 
-    public XLSWorker(String fileName) { // Конструктор с листом и первой строкой по умолчанию, имя файла задаем явно
+    public XLSWorker(String fileName) throws FileNotFoundException { // Конструктор с листом и первой строкой по умолчанию, имя файла задаем явно
         new XLSWorker(fileName, DEFAULT_SHEET_NUM, DEFAULT_FIRST_ROW_NUM);
     }
 
-    public XLSWorker(int sheetNum, int firstRowNum) { // Конструктор с именем файла по умолчанию, лист и первую строку задаем явно
+    public XLSWorker(int sheetNum, int firstRowNum) throws FileNotFoundException { // Конструктор с именем файла по умолчанию, лист и первую строку задаем явно
         new XLSWorker(DEFAULT_FILENAME, sheetNum, firstRowNum);
     }
 
-    public XLSWorker(String fileName, int sheetNum, int firstRowNum) { // Все параметры задаем явно
+    public XLSWorker(String fileName, int sheetNum, int firstRowNum) throws FileNotFoundException { // Все параметры задаем явно
         try {
             FileInputStream fin = new FileInputStream(System.getProperty("user.dir") + "\\" + fileName);
             boolean isXLSX = fileName.substring(fileName.indexOf('.') + 1).equals("xlsx");
@@ -85,8 +87,13 @@ public class XLSWorker {
     }
 
     public static void main(String args[]) {
+        XLSWorker excel = null;
+        try {
+            excel = new XLSWorker();
+        } catch (FileNotFoundException e) {
+            System.exit(1);
+        }
         SiteWorker site = new SiteWorker();
-        XLSWorker excel = new XLSWorker();
         System.out.println(excel.parse(site.parse()));
     }
 }
