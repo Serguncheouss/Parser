@@ -1,4 +1,4 @@
-package core;
+package ru.greus.parser.core;
 
 /**
  * Created by Strel on 03.08.2016.

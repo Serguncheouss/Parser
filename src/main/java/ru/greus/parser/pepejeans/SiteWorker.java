@@ -1,4 +1,4 @@
-package pepejeans;
+package ru.greus.parser.pepejeans;
 
 import java.io.*;
 import java.util.*;
@@ -37,7 +37,7 @@ public class SiteWorker {
     private Map.Entry theme;
     private HtmlDocument dressPage;
     private List<ThingPepe> dress = new ArrayList<>();
-    private static final int TEST_END_COUNT = 3; // Количество тестовых итераций
+    private static final int TEST_END_COUNT = 0; // Количество тестовых итераций
     private int testCounter = 0; // Счетчик тестовых итераций
 
     public SiteWorker() {
@@ -210,16 +210,15 @@ public class SiteWorker {
         ThingPepe tThing;
         for (Node node : dressPage.find("div#linebook_list").findAll("li")) {
             if (TEST_END_COUNT != 0 && testCounter >= TEST_END_COUNT) break; // test
-            Node li = node;
             if (
-                    !li.find("span.images").find("img").getAttribute("src").contains("not_available") & // убираем недоступные товары
-                            !li.find("span.images").find("img").getAttribute("src").contains("cancelled") & // убираем отмененные товары
-                            li.find("span.offeronly") == null // убираем товары только для предложения
+                    !node.find("span.images").find("img").getAttribute("src").contains("not_available") & // убираем недоступные товары
+                            !node.find("span.images").find("img").getAttribute("src").contains("cancelled") & // убираем отмененные товары
+                            node.find("span.offeronly") == null // убираем товары только для предложения
                     ) {
                 dress.add(tThing = new ThingPepe( // добавляем новую вещь в массив
-                        li.getAttribute("id").substring(li.getAttribute("id").indexOf("_") + 1), // артикул
-                        li.find("em").find("span.stylename").getValue(), // имя
-                        li.find("a").getAttribute("href") // ссылка
+                        node.getAttribute("id").substring(node.getAttribute("id").indexOf("_") + 1), // артикул
+                        node.find("em").find("span.stylename").getValue(), // имя
+                        node.find("a").getAttribute("href") // ссылка
                 ));
                 getParamsForThing(tThing);
                 System.out.println("Товар добавлен " + thingCounter + " из " + dressPage.find("div#linebook_list").findAll("li").size());
@@ -267,9 +266,10 @@ public class SiteWorker {
             thing.addColor(colorId, "", colorUrl);
         }
         while (it.hasNext()) {
-            String colorId = it.next().find("div.name").getValue();
-            String colorName = it.next().find("div.small").getAttribute("title");
-            String colorUrl = siteUrl + it.next().find("img").getAttribute("src");
+            Node node = it.next();
+            String colorId = node.find("div.name").getValue();
+            String colorName = node.find("div.small").getAttribute("title");
+            String colorUrl = siteUrl + node.find("img").getAttribute("src");
             thing.addColor(colorId, colorName, colorUrl);
         }
         // --> Парсим цвета

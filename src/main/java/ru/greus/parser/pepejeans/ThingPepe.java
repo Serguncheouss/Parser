@@ -1,6 +1,7 @@
-package pepejeans;
+package ru.greus.parser.pepejeans;
 
-import core.Thing;
+import ru.greus.parser.core.Thing;
+
 import java.util.*;
 
 /**

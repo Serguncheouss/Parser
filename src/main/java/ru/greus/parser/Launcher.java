@@ -1,6 +1,8 @@
-import pepejeans.SiteWorker;
-import pepejeans.ThingPepe;
-import pepejeans.XLSWorker;
+package ru.greus.parser;
+
+import ru.greus.parser.pepejeans.SiteWorker;
+import ru.greus.parser.pepejeans.ThingPepe;
+import ru.greus.parser.pepejeans.XLSWorker;
 
 import java.io.FileWriter;
 import java.io.IOException;
