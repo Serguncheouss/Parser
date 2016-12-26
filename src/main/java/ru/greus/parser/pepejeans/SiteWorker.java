@@ -8,6 +8,7 @@ import com.gistlabs.mechanize.document.html.HtmlDocument;
 import com.gistlabs.mechanize.document.node.Node;
 import com.gistlabs.mechanize.exceptions.MechanizeException;
 import com.gistlabs.mechanize.impl.MechanizeAgent;
+import ru.greus.parser.core.Thing;
 
 /**
  * Created by Strel on 06.08.2016.
@@ -38,7 +39,7 @@ public class SiteWorker {
     private HtmlDocument dressPage;
     private List<ThingPepe> dress = new ArrayList<>();
     private static final int TEST_END_COUNT = 0; // Количество тестовых итераций
-    private int testCounter = 0; // Счетчик тестовых итераций
+    private static int testCounter = 0; // Счетчик тестовых итераций
 
     public SiteWorker() {
         try (FileInputStream accountDataStream = new FileInputStream(System.getProperty("user.dir") + "\\" + accountDataFile)) { // открываем файл с данными аккаунта
@@ -64,7 +65,7 @@ public class SiteWorker {
     public static void main(String[] args) throws IOException {
         SiteWorker siteWorker = new SiteWorker();
         siteWorker.parseDress();
-        siteWorker.getThings();
+        //siteWorker.getThings();
         //siteWorker.findThing("PM200143M84"); // для теста
     }
     private void login() {
@@ -206,10 +207,11 @@ public class SiteWorker {
         return choiceTheme;
     }
     private void parseDress() {
-        int thingCounter = 1;
+        List<? extends Node> nodes = dressPage.find("div#linebook_list").findAll("li");
+        int totalCount = nodes.size();
         ThingPepe tThing;
-        for (Node node : dressPage.find("div#linebook_list").findAll("li")) {
-            if (TEST_END_COUNT != 0 && testCounter >= TEST_END_COUNT) break; // test
+        for (Node node : nodes) {
+            if (TEST_END_COUNT != 0 && SiteWorker.testCounter >= TEST_END_COUNT) break; // test
             if (
                     !node.find("span.images").find("img").getAttribute("src").contains("not_available") & // убираем недоступные товары
                             !node.find("span.images").find("img").getAttribute("src").contains("cancelled") & // убираем отмененные товары
@@ -220,13 +222,12 @@ public class SiteWorker {
                         node.find("em").find("span.stylename").getValue(), // имя
                         node.find("a").getAttribute("href") // ссылка
                 ));
-                getParamsForThing(tThing);
-                System.out.println("Товар добавлен " + thingCounter + " из " + dressPage.find("div#linebook_list").findAll("li").size());
-                testCounter++; // test
+                this.getParamsForThing(tThing);
+                System.out.println("Товар добавлен " + Thing.counter + " из " + totalCount);
+                SiteWorker.testCounter++; // test
             }
-            thingCounter++;
+            Thing.counter++;
         }
-
 //          Пока заменил на итератор, посмотрим на функционал и производительность
 //        dressPage.findAll("ul.gallery").forEach(ul -> ul.findAll("li").forEach(li -> {
 //            if (

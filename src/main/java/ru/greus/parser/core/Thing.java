@@ -8,6 +8,8 @@ package ru.greus.parser.core;
 public abstract class Thing {
     /** Атикул */
     private String article;
+    /** Счетчик объектов */
+    public static int counter = 1;
 
     /** Конструктор по умолчанию отсутствует */
     protected Thing(String article) {
