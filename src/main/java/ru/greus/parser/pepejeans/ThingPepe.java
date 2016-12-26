@@ -76,7 +76,7 @@ public class ThingPepe extends Thing {
     public String toSP() {
         String result = "";
         for (String image : this.getGallery()) {
-            result += "[img]" + image + "[/img]";
+            result += "[img width=400]" + image + "[/img]";
         }
         result += "\n[b]" + this.getArticle() + " " + this.getName() + " - " + this.getPrice() + "[/b]\n";
         for (Map.Entry<String, String> param : this.getParams().entrySet()) {
