@@ -20,8 +20,6 @@ public abstract class Thing {
     public String getArticle() {
         return article;
     }
-    /** Обязательное переопределение метода toSP() - приводит массив вещей в формат СП и сохраняет в result.txt */
-    public abstract String toSP();
 
     /** Обязательное переопределение метода toString() */
      @Override
