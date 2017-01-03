@@ -68,7 +68,7 @@ public class XLSWorker {
             Cell division = row.getCell(DEFAULT_DIVISION_COL);
             Cell theme = row.getCell(DEFAULT_THEME_COL);
             Cell price = row.getCell(DEFAULT_PRICE_COL);
-            if ((article != null && price != null && theme.toString().equals("")) && // Если цена и тема не нулевые
+            if ((article != null && price != null && !theme.toString().equals("")) && // Если цена и тема не нулевые
                !(dressList.size() > 0 && // Обязательно для строки ниже
                article.toString().equals(dressList.get(dressList.size() - 1).getArticle()))) { // Убирает дубли
                     dressList.add(thing = new ThingPepe(article.toString()));

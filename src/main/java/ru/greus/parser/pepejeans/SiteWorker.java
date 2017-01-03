@@ -70,7 +70,15 @@ public class SiteWorker {
         }
         catch (MechanizeException e) {
             System.out.println("Ошибка: Сайт недоступен.");
-            System.exit(1);
+            while (page == null) {
+                System.out.println("Попытка восстановления доступа...");
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException e1) {
+                    e1.printStackTrace();
+                }
+                page = agent.get(url);
+            }
         }
         return page;
     }
