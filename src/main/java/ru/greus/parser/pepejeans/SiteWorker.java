@@ -148,7 +148,8 @@ public class SiteWorker extends Thread {
         if (isTest) {
             Long endTime = System.currentTimeMillis();
             System.out.println("Время на парсинг " + TEST_END_COUNT + " вещей составило: " +
-                    ((endTime - startTime) / 1000) + " минут.");
+                    ((endTime - startTime) / 1000) + " секунд.");
+            System.exit(1);
         }
         return clearDress(dressList);
     }
