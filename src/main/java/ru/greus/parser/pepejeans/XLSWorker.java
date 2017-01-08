@@ -17,9 +17,9 @@ import java.util.*;
  */
 public class XLSWorker {
 
-    private final static String DEFAULT_FILENAME = "Бланк_заказа_-_men_women.xls"; // Имя файла по умолчанию
+    private final static String DEFAULT_FILENAME = "Orderform AW17PC - клиент.xlsx"; // Имя файла по умолчанию
     private final static int DEFAULT_SHEET_NUM = 1; // Номер листа по умолчанию
-    private final static int DEFAULT_FIRST_ROW_NUM = 6; // Номер первой строки по умолчанию
+    private final static int DEFAULT_FIRST_ROW_NUM = 7; // Номер первой строки по умолчанию
     private final static int DEFAULT_ARTICLE_COL = 4; // Столбец с артикулом по умолчанию
     private final static int DEFAULT_NAME_COL = 6; // Столбец с наименованием по умолчанию
     private final static int DEFAULT_LINEBOOK_COL = 13; // Столбец с артикулом по умолчанию**
@@ -68,7 +68,8 @@ public class XLSWorker {
             Cell division = row.getCell(DEFAULT_DIVISION_COL);
             Cell theme = row.getCell(DEFAULT_THEME_COL);
             Cell price = row.getCell(DEFAULT_PRICE_COL);
-            if ((article != null && price != null && !theme.toString().equals("")) && // Если цена и тема не нулевые
+            if ((article != null && price != null && !price.toString().equals("") &&
+                    price.getNumericCellValue() != 0.0 && !theme.toString().equals("")) && // Если цена и тема не нулевые
                !(dressList.size() > 0 && // Обязательно для строки ниже
                article.toString().equals(dressList.get(dressList.size() - 1).getArticle()))) { // Убирает дубли
                     dressList.add(thing = new ThingPepe(article.toString()));
@@ -83,7 +84,7 @@ public class XLSWorker {
             }
         }
 
-        System.out.println("Добавлено " + dressList.size() + " вещей из прайса.");
+        System.out.println("[Ok] - Добавлено " + dressList.size() + " вещей из прайса.");
         return dressList;
     }
 
