@@ -17,9 +17,9 @@ public class SiteWorker {
     /** Создание объекта парсера MechanizeAgent */
     private MechanizeAgent agent = new MechanizeAgent();
 
-    private static final int TEST_END_COUNT = 65; // Количество тестовых итераций
-    private static int testCounter = 63; // Счетчик тестовых итераций
-    private static boolean isTest = false;
+    private static int testCounter = 0; // Счетчик тестовых итераций
+    private static final int TEST_END_COUNT = 100; // Количество тестовых итераций
+    private static boolean isTest = true;
 
     public SiteWorker() {
         /* Название файла с данными авторизации */
@@ -83,12 +83,13 @@ public class SiteWorker {
         return page;
     }
     public List<ThingPepe> parse(List<ThingPepe> dressList) {
+        Long startTime = isTest ? System.currentTimeMillis() : null;
         Iterator<ThingPepe> it = dressList.iterator();
         for (int i = 0; isTest && (i < testCounter); i++) {
             it.next();
         }
         while (it.hasNext()) {
-            ThingPepe thing = it.next(); // TODO где то здесь многопоточность
+            ThingPepe thing = it.next();
             getParamsForThing(thing);
             if (thing.getGallery().size() < 1 || thing.getColors().size() < 1) {
                 System.out.println("Товар " + thing.getArticle() + " удален, нет картинки или цвета.");
@@ -99,13 +100,19 @@ public class SiteWorker {
             }
             if (isTest) {
                 if (testCounter <= TEST_END_COUNT) testCounter++;
-                else System.exit(1);
+                else break;
             }
+        }
+        if (isTest) {
+            Long endTime = System.currentTimeMillis();
+            System.out.println("Время на парсинг " + TEST_END_COUNT + " вещей составило: " +
+                    ((endTime - startTime) / 1000) + " секунд.");
+            System.exit(1);
         }
         return dressList;
     }
     /** Парсит параметры для товара */
-    private void getParamsForThing (ThingPepe thing) { // TODO добавить многопоточность
+    private void getParamsForThing (ThingPepe thing) {
         String attrName;
         HtmlDocument page = getPage(thing.getUrl());
         // <-- Парсим картинки
