@@ -4,6 +4,8 @@ import ru.greus.parser.core.Thing;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.*;
 
 /**
@@ -33,9 +35,9 @@ public class ThingPepe extends Thing {
     /** Наименование */
     private String name;
     /** Ссылка на товар */
-    private String url;
+    private URL url;
     /** Ссылки на картинки */
-    private List<String> gallery = new ArrayList<>();
+    private List<URL> gallery = new ArrayList<>();
     /** Параметры, берем со страницы с товаром */
     private Map<String, String> params = new TreeMap<>();
     /** Цвета(код, название, ссылка на картинку) */
@@ -47,7 +49,7 @@ public class ThingPepe extends Thing {
         super(article);
     }
 
-    ThingPepe(String article, String name, String url) {
+    ThingPepe(String article, String name, URL url) {
         this(article);
         this.name = name;
         this.url = url;
@@ -105,11 +107,11 @@ public class ThingPepe extends Thing {
 
     void setName(String name) { this.name = name; }
 
-    List<String> getGallery() {
+    public List<URL> getGallery() {
         return gallery;
     }
 
-    void addImageToGallery(String image) {
+    void addImageToGallery(URL image) {
         this.gallery.add(image);
     }
 
@@ -121,12 +123,12 @@ public class ThingPepe extends Thing {
         this.params.put(key, value);
     }
 
-    List<List<String>> getColors() {
+    public List<List<String>> getColors() {
         return colors;
     }
 
-    void addColor(String colorId, String colorName, String colorURL) {
-        this.colors.add(Arrays.asList(colorId, colorName, colorURL));
+    void addColor(String colorId, String colorName, URL colorURL) {
+        this.colors.add(Arrays.asList(colorId, colorName, colorURL.toString()));
     }
 
     float getPrice() {
@@ -137,44 +139,44 @@ public class ThingPepe extends Thing {
         this.price = price;
     }
 
-    String getUrl() {
+    URL getUrl() {
         return url;
     }
 
-    void setUrl() {
-        this.url = "http://webtool.pepejeans.com/pjlweb/index.php?section=linebook_detail&season=" +
+    void setUrl() throws MalformedURLException {
+        this.url = new URL("http://webtool.pepejeans.com/pjlweb/index.php?section=linebook_detail&season=" +
                 getSeason() + "&year=20" + getYear() + "&rollout=" + getRollout() + "&brand=" + getBrand() +
                 "&division=" + getDivisionMap(getDivision()) + "&theme=" + getTheme() + "&stylecode=" +
-                getArticle() + "&inspiration=1&backid=row_1_0";
+                getArticle() + "&inspiration=1&backid=row_1_0");
     }
 
-    public void toSP(String currentDate) {
+    public String toSP(String currentDate) throws IOException {
         String result = "";
-        for (String image : this.getGallery()) {
-            result += "[img width=400]" + image + "[/img]";
+        for (URL image : this.getGallery()) {
+            result += "[img width=400]" + image.toString() + "[/img]";
         }
         result += "\n[b]" + this.getArticle() + " " + this.getName() + " - " + this.getPrice() + " €\n";
         for (Map.Entry<String, String> param : this.getParams().entrySet()) {
             result += param.getKey() + " " + param.getValue() + "\n";
         }
         for (List<String> color : this.getColors()) {
-            result += color.get(0) + " " + color.get(1) + " [img width=40 height=40]" + color.get(2) + "[/img]\n\n";
+            result += color.get(0) + " " + color.get(1) + " [img width=40 height=40]" +
+                    color.get(2) + "[/img]\n\n";
         }
 
-        try {
-            FileWriter fw = new FileWriter(currentDate + "_" + this.getDivision() + "_" + this.getTheme() + ".txt", true);
-            fw.write(result);
-            fw.flush();
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
-        }
+        String fileName = currentDate + "_" + this.getDivision() + "_" + this.getTheme() + ".txt";
+
+        FileWriter fw = new FileWriter(fileName, true);
+        fw.write(result);
+        fw.flush();
+        return fileName;
     }
 
     @Override
     public String toString() {
         return "Атикул: " + this.getArticle() + "\n" +
                 "Наименование: " + getName() + "\n" +
-                "Ссылка на товар: " + getUrl() + "\n" +
+                "Ссылка на товар: " + getUrl().toString() + "\n" +
                 "Ссылки на картинки: " + getGallery() + "\n" +
                 "Параметры: " + getParams() + "\n" +
                 "Цвета: " + getColors() + "\n" +

@@ -6,7 +6,7 @@
 
     <groupId>ru.greus</groupId>
     <artifactId>parser</artifactId>
-    <version>1.1</version>
+    <version>2.1</version>
     <packaging>jar</packaging>
 
     <name>parser</name>
@@ -63,6 +63,11 @@
     </build>
 
     <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.11</version>
+        </dependency>
         <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi</artifactId>

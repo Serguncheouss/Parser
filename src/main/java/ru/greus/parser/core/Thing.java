@@ -9,7 +9,7 @@ public abstract class Thing {
     /** Атикул */
     private String article;
     /** Счетчик объектов */
-    public static int counter = 1;
+    public static int counter = 0;
 
     /** Конструктор по умолчанию отсутствует */
     protected Thing(String article) {

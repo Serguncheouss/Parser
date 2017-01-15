@@ -10,6 +10,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.*;
 
 /**
@@ -56,7 +57,7 @@ public class XLSWorker {
         XLSWorker.firstRowNum = firstRowNum;
     }
     /** Парсит эксель файл */
-    public List<ThingPepe> parse(){
+    public List<ThingPepe> parse() throws MalformedURLException {
         List<ThingPepe> dressList = new ArrayList<>();
         Sheet sheet = wb.getSheetAt(sheetNum);
         ThingPepe thing;
@@ -84,11 +85,10 @@ public class XLSWorker {
             }
         }
 
-        System.out.println("[Ok] - Добавлено " + dressList.size() + " вещей из прайса.");
         return dressList;
     }
 
-    public static void main(String args[]) {
+    public static void main(String args[]) throws MalformedURLException {
         XLSWorker excel = null;
         try {
             excel = new XLSWorker("Orderform AW17PC - клиент.xlsx", 1, 7);
